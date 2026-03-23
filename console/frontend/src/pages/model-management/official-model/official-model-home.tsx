@@ -162,9 +162,9 @@ const OfficialModelContent: React.FC = () => {
     const keyword = state.searchInput.trim().toLowerCase();
 
     return providerCards.filter(card => {
-      const cardVendor = mapProviderToVendor(card.provider);
+      // 这里我们检查的是具体的模型提供商
       const matchedProvider =
-        !state.providerFilter || state.providerFilter === cardVendor;
+        !state.providerFilter || state.providerFilter === card.provider;
       const matchedKeyword =
         !keyword ||
         card.title.toLowerCase().includes(keyword) ||
