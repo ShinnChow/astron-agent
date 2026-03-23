@@ -3,20 +3,13 @@ import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import ModelManagementHeader from '../components/model-management-header';
 import CategoryAside from '../components/category-aside';
+import GroupedProviderCards from '../components/grouped-provider-cards';
 import { CreateModal } from '../components/modal-component';
 import { ModelProvider, useModelContext } from '../context/model-context';
 import { useModelFilters } from '../hooks/use-model-filters';
 import { ModelProviderType } from '@/types/model';
 import { getModelProviderLabel } from '../utils/provider';
-import chatgptIcon from '@/assets/imgs/modelManage/providers/custom/chatgpt.svg';
-import anthropicIcon from '@/assets/imgs/modelManage/providers/custom/anthropic.svg';
-import deepseekIcon from '@/assets/imgs/modelManage/providers/custom/deepseek.svg';
-import googleIcon from '@/assets/imgs/modelManage/providers/custom/google.svg';
-import minimaxIcon from '@/assets/imgs/modelManage/providers/custom/minimax.svg';
-import zhipuIcon from '@/assets/imgs/modelManage/providers/custom/zhipu.svg';
-import qwenIcon from '@/assets/imgs/modelManage/providers/custom/qwen.svg';
-import moonshotIcon from '@/assets/imgs/modelManage/providers/custom/moonshot.svg';
-import doubaoIcon from '@/assets/imgs/modelManage/providers/custom/doubao.svg';
+import { mapProviderToVendor, getVendorOptions } from '../utils/provider-group';
 
 interface OfficialProviderCard {
   provider: ModelProviderType;
@@ -26,43 +19,6 @@ interface OfficialProviderCard {
   accentClass: string;
   endpoint: string;
 }
-
-const ProviderLogoGlyph: React.FC<{ provider: ModelProviderType }> = ({
-  provider,
-}) => {
-  const imageLogoMap: Record<ModelProviderType, string> = {
-    [ModelProviderType.CHATGPT]: chatgptIcon,
-    [ModelProviderType.OPENAI]: chatgptIcon,
-    [ModelProviderType.ANTHROPIC]: anthropicIcon,
-    [ModelProviderType.DEEPSEEK]: deepseekIcon,
-    [ModelProviderType.GOOGLE]: googleIcon,
-    [ModelProviderType.MINIMAX]: minimaxIcon,
-    [ModelProviderType.ZHIPU]: zhipuIcon,
-    [ModelProviderType.QWEN]: qwenIcon,
-    [ModelProviderType.MOONSHOT]: moonshotIcon,
-    [ModelProviderType.DOUBAO]: doubaoIcon,
-  };
-
-  return (
-    <img
-      src={imageLogoMap[provider]}
-      alt={getModelProviderLabel(provider)}
-      className="h-8 w-8 object-contain"
-    />
-  );
-};
-
-const ProviderLogoBadge: React.FC<{ provider: ModelProviderType }> = ({
-  provider,
-}) => {
-  return (
-    <div className="rounded-2xl border border-[#E7EBF4] bg-white px-3 py-3 shadow-[0_10px_24px_rgba(31,35,41,0.06)]">
-      <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-[14px] border border-[#EEF1F7] bg-white">
-        <ProviderLogoGlyph provider={provider} />
-      </div>
-    </div>
-  );
-};
 
 const OfficialModelContent: React.FC = () => {
   const { t } = useTranslation();
@@ -150,22 +106,6 @@ const OfficialModelContent: React.FC = () => {
     [t]
   );
 
-  const visibleCards = useMemo(() => {
-    const keyword = state.searchInput.trim().toLowerCase();
-
-    return providerCards.filter(card => {
-      const matchedProvider =
-        !state.providerFilter || state.providerFilter === card.provider;
-      const matchedKeyword =
-        !keyword ||
-        card.title.toLowerCase().includes(keyword) ||
-        card.subtitle.toLowerCase().includes(keyword) ||
-        card.description.toLowerCase().includes(keyword) ||
-        getModelProviderLabel(card.provider).toLowerCase().includes(keyword);
-
-      return matchedProvider && matchedKeyword;
-    });
-  }, [providerCards, state.providerFilter, state.searchInput]);
 
   const handleOpenProviderModal = (card: OfficialProviderCard): void => {
     actions.setCurrentEditModel(undefined);
@@ -190,44 +130,7 @@ const OfficialModelContent: React.FC = () => {
             <CategoryAside
               tree={[]}
               providerFilter={state.providerFilter}
-              providerOptions={[
-                {
-                  label: t('model.providerChatGPT'),
-                  value: ModelProviderType.CHATGPT,
-                },
-                {
-                  label: t('model.providerDeepSeek'),
-                  value: ModelProviderType.DEEPSEEK,
-                },
-                {
-                  label: t('model.providerAnthropic'),
-                  value: ModelProviderType.ANTHROPIC,
-                },
-                {
-                  label: t('model.providerGoogle'),
-                  value: ModelProviderType.GOOGLE,
-                },
-                {
-                  label: t('model.providerMiniMax'),
-                  value: ModelProviderType.MINIMAX,
-                },
-                {
-                  label: t('model.providerZhipu'),
-                  value: ModelProviderType.ZHIPU,
-                },
-                {
-                  label: t('model.providerQwen'),
-                  value: ModelProviderType.QWEN,
-                },
-                {
-                  label: t('model.providerMoonshot'),
-                  value: ModelProviderType.MOONSHOT,
-                },
-                {
-                  label: t('model.providerDoubao'),
-                  value: ModelProviderType.DOUBAO,
-                },
-              ]}
+              providerOptions={getVendorOptions()}
               onProviderChange={filters.handleProviderFilterChange}
               showContextLength={false}
               showModelStatus={false}

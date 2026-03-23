@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { useModelContext } from '../context/model-context';
 import { ModelInfo, CategoryNode, ShelfStatus } from '@/types/model';
-import { getModelProviderFromInfo } from '../utils/provider';
+import { getModelProviderFromInfo, getModelVendorIdentifier } from '../utils/provider';
 
 export const useModelFilters = (): {
   filteredModels: ModelInfo[];
@@ -127,7 +127,7 @@ export const useModelFilters = (): {
 
     if (state.providerFilter) {
       models = models.filter(
-        model => getModelProviderFromInfo(model) === state.providerFilter
+        model => getModelVendorIdentifier(model) === state.providerFilter
       );
     }
 

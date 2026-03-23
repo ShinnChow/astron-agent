@@ -54,6 +54,7 @@ import {
   getModelProviderLabel,
   normalizeModelProvider,
 } from '../utils/provider';
+import { mapProviderToVendor } from '../utils/provider-group';
 
 const { TextArea } = Input;
 
@@ -644,66 +645,29 @@ const ModelBasicForm = ({
 }): JSX.Element => {
   const { t } = useTranslation();
   const currentProvider = normalizeModelProvider(modelInfo?.provider);
-  const providerHint =
-    currentProvider === ModelProviderType.MINIMAX
-      ? t('model.providerHintMiniMax')
-      : currentProvider === ModelProviderType.ZHIPU
-        ? t('model.providerHintZhipu')
-        : currentProvider === ModelProviderType.QWEN
-          ? t('model.providerHintQwen')
-          : currentProvider === ModelProviderType.MOONSHOT
-            ? t('model.providerHintMoonshot')
-            : currentProvider === ModelProviderType.CHATGPT
-              ? t('model.providerHintChatGPT')
-              : currentProvider === ModelProviderType.DOUBAO
-                ? t('model.providerHintDoubao')
-                : currentProvider === ModelProviderType.DEEPSEEK
-      ? t('model.providerHintDeepSeek')
-      : currentProvider === ModelProviderType.ANTHROPIC
-        ? t('model.providerHintAnthropic')
-        : currentProvider === ModelProviderType.GOOGLE
-          ? t('model.providerHintGoogle')
-          : t('model.providerHintOpenAI');
-  const modelPlaceholder =
-    currentProvider === ModelProviderType.MINIMAX
-      ? t('model.minimaxModelPlaceholder')
-      : currentProvider === ModelProviderType.ZHIPU
-        ? t('model.zhipuModelPlaceholder')
-        : currentProvider === ModelProviderType.QWEN
-          ? t('model.qwenModelPlaceholder')
-          : currentProvider === ModelProviderType.MOONSHOT
-            ? t('model.moonshotModelPlaceholder')
-            : currentProvider === ModelProviderType.CHATGPT
-              ? t('model.chatgptModelPlaceholder')
-              : currentProvider === ModelProviderType.DOUBAO
-                ? t('model.doubaoModelPlaceholder')
-                : currentProvider === ModelProviderType.DEEPSEEK
-      ? t('model.deepseekModelPlaceholder')
-      : currentProvider === ModelProviderType.ANTHROPIC
-        ? t('model.anthropicModelPlaceholder')
-        : currentProvider === ModelProviderType.GOOGLE
-          ? t('model.googleModelPlaceholder')
-          : t('model.enterModelFieldValue');
-  const endpointPlaceholder =
-    currentProvider === ModelProviderType.MINIMAX
-      ? t('model.minimaxEndpointPlaceholder')
-      : currentProvider === ModelProviderType.ZHIPU
-        ? t('model.zhipuEndpointPlaceholder')
-        : currentProvider === ModelProviderType.QWEN
-          ? t('model.qwenEndpointPlaceholder')
-          : currentProvider === ModelProviderType.MOONSHOT
-            ? t('model.moonshotEndpointPlaceholder')
-            : currentProvider === ModelProviderType.CHATGPT
-              ? t('model.chatgptEndpointPlaceholder')
-              : currentProvider === ModelProviderType.DOUBAO
-                ? t('model.doubaoEndpointPlaceholder')
-                : currentProvider === ModelProviderType.DEEPSEEK
-      ? t('model.deepseekEndpointPlaceholder')
-      : currentProvider === ModelProviderType.ANTHROPIC
-        ? t('model.anthropicEndpointPlaceholder')
-        : currentProvider === ModelProviderType.GOOGLE
-          ? t('model.googleEndpointPlaceholder')
-          : t('model.interfaceAddressPlaceholder');
+  // 根据供应商类型决定显示什么提示信息
+  const isAnthropicProvider = currentProvider === ModelProviderType.ANTHROPIC;
+  const isGoogleProvider = currentProvider === ModelProviderType.GOOGLE;
+  // 所有其他提供商都被视为OpenAI兼容
+  const isOpenAICompatibleProvider = !isAnthropicProvider && !isGoogleProvider;
+
+  const providerHint = isAnthropicProvider
+    ? t('model.providerHintAnthropic')
+    : isGoogleProvider
+      ? t('model.providerHintGoogle')
+      : t('model.providerHintOpenAI');
+
+  const modelPlaceholder = isAnthropicProvider
+    ? t('model.anthropicModelPlaceholder')
+    : isGoogleProvider
+      ? t('model.googleModelPlaceholder')
+      : t('model.enterModelFieldValue');
+
+  const endpointPlaceholder = isAnthropicProvider
+    ? t('model.anthropicEndpointPlaceholder')
+    : isGoogleProvider
+      ? t('model.googleEndpointPlaceholder')
+      : t('model.interfaceAddressPlaceholder');
   return (
     <>
       {modelCreateType === ModelCreateType.THIRD_PARTY && (
@@ -727,34 +691,6 @@ const ModelBasicForm = ({
               {
                 label: t('model.providerGoogle'),
                 value: ModelProviderType.GOOGLE,
-              },
-              {
-                label: t('model.providerMiniMax'),
-                value: ModelProviderType.MINIMAX,
-              },
-              {
-                label: t('model.providerZhipu'),
-                value: ModelProviderType.ZHIPU,
-              },
-              {
-                label: t('model.providerQwen'),
-                value: ModelProviderType.QWEN,
-              },
-              {
-                label: t('model.providerMoonshot'),
-                value: ModelProviderType.MOONSHOT,
-              },
-              {
-                label: t('model.providerChatGPT'),
-                value: ModelProviderType.CHATGPT,
-              },
-              {
-                label: t('model.providerDoubao'),
-                value: ModelProviderType.DOUBAO,
-              },
-              {
-                label: t('model.providerDeepSeek'),
-                value: ModelProviderType.DEEPSEEK,
               },
             ]}
             onChange={value =>
@@ -1448,7 +1384,7 @@ const useCreateModal = (
       interfaceAddress: initialEndpoint || '',
       apiKEY: '',
       domain: '',
-      provider: normalizeModelProvider(initialProvider),
+      provider: mapProviderToVendor(initialProvider),
       isThink: false,
     });
     formState.setTags([]);
@@ -1520,7 +1456,7 @@ const useCreateModal = (
       formState.setModelInfo({
         ...formState.modelInfo,
         interfaceAddress: initialEndpoint || formState.modelInfo.interfaceAddress,
-        provider: normalizeModelProvider(initialProvider),
+        provider: mapProviderToVendor(initialProvider),
         isThink: formState.modelInfo.isThink ?? false,
       });
     }
