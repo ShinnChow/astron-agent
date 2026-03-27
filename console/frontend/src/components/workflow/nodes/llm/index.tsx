@@ -388,7 +388,8 @@ export const LargeModelDetail = memo(({ id, data }): React.ReactElement => {
 
   // Check if any selected model has multimodal capability
   const models = data?.nodeParam?.model || [];
-  const hasMultimodalCapability = models.some(model => model?.checked && model?.multiMode === true);
+  const selectedModel = models.find(model => model?.checked);
+  const hasMultimodalCapability = selectedModel?.multiMode === true;
 
   return (
     <div className="p-[14px] pb-[6px]">
