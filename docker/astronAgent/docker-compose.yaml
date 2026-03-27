@@ -30,9 +30,9 @@ services:
     container_name: astron-agent-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      MYSQL_DATABASE: ${CONSOLE_MYSQL_DB:-astron_console}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql/:/docker-entrypoint-initdb.d/
     networks:
       - astron-agent-network
     restart: always
