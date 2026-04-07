@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Table, message, Popover, Modal, Select } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import {
   getAgentList,
   type GetAgentListParams,
@@ -40,6 +42,8 @@ interface AgentListProps {
   AgentType?: 'agent' | 'workflow' | 'virtual' | 'all';
 }
 
+dayjs.extend(utc);
+
 const PUBLISHED_STATUSES = [1, 2, 4];
 
 const isPublishedBot = (botStatus?: number): boolean =>
@@ -56,6 +60,14 @@ const canTakeDownMarket = (bot: {
   botStatus?: number;
   releaseType?: number[] | number;
 }): boolean => isPublishedBot(bot.botStatus) && hasMarketRelease(bot.releaseType);
+
+const formatUtcListTime = (value?: string): string => {
+  if (!value) return '-';
+  return dayjs
+    .utc(value.replace(' ', 'T'))
+    .utcOffset(8)
+    .format('YYYY-MM-DD HH:mm');
+};
 
 const AgentList: React.FC<AgentListProps> = ({ AgentType }) => {
   const screenWidth = useScreenWidth();
@@ -400,7 +412,7 @@ const AgentList: React.FC<AgentListProps> = ({ AgentType }) => {
         align: 'center',
         render: (time: string) => (
           <span className={styles.timeColor}>
-            {time?.replace(/T/g, ' ').slice(0, 16)}
+            {formatUtcListTime(time)}
           </span>
         ),
       });

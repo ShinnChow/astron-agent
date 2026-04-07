@@ -84,14 +84,8 @@ function index() {
 
   const formatCreateTime = useCallback((value?: string) => {
     if (!value) return '-';
-    if (/(Z|[+-]\d{2}:\d{2})$/.test(value)) {
-      return dayjs.utc(value).utcOffset(8).format('YYYY-MM-DD HH:mm');
-    }
-    return value
-      .replace('T', ' ')
-      .replace(/(\.\d+)?Z$/, '')
-      .replace(/[+-]\d{2}:\d{2}$/, '')
-      .slice(0, 16);
+    const normalized = value.replace(' ', 'T');
+    return dayjs.utc(normalized).utcOffset(8).format('YYYY-MM-DD HH:mm');
   }, []);
 
   // 复制成虚拟人需要的参数
